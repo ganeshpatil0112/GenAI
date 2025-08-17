@@ -1,0 +1,26 @@
+Navigate to your project directory:     cd /path/to/your/project
+
+Create the virtual environment: Use the venv module, which is built into Python 3.x, to create a new virtual environment:
+python -m venv myenv
+
+Activate the virtual environment: The activation command depends on your operating system and shell.
+On Windows (Command Prompt):   .\vectordb\Scripts\activate.bat
+
+
+
+QDRANT Vector DB:
+
+Qdrant API Key = eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.FzT1JuB5CUciQrb1B3ahwF87j-Oeher7DVr533wslDE
+
+Qdrant endpoint = https://f8848f92-af8a-4b7b-87b1-bd4e568c1ff7.eu-central-1-0.aws.cloud.qdrant.io
+
+Qdrant python code:
+
+from qdrant_client import QdrantClient
+
+qdrant_client = QdrantClient(
+    url="https://f8848f92-af8a-4b7b-87b1-bd4e568c1ff7.eu-central-1-0.aws.cloud.qdrant.io:6333", 
+    api_key="eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJhY2Nlc3MiOiJtIn0.FzT1JuB5CUciQrb1B3ahwF87j-Oeher7DVr533wslDE",
+)
+
+print(qdrant_client.get_collections())
