@@ -1,0 +1,18 @@
+https://drive.google.com/drive/folders/1RTIbkfAryHJXAv7hwerNBXx_sfHZhSfG?usp=sharing
+streamlit
+fpdf
+pypdf
+faiss-cpu
+langchain
+euriai 
+langchain_community
+sentence-transformers
+
+
+conda create -n medichatpro python=3.10
+conda activate medichatpro
+pip install -r requirements.txt
+
+
+
+streamlit run main.py

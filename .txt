@@ -1,10 +1,32 @@
 Navigate to your project directory:     cd /path/to/your/project
 
 Create the virtual environment: Use the venv module, which is built into Python 3.x, to create a new virtual environment:
-python -m venv myenv
+python -m venv medichatpro
 
 Activate the virtual environment: The activation command depends on your operating system and shell.
-On Windows (Command Prompt):   .\vectordb\Scripts\activate.bat
+On Windows (Command Prompt):   .\medichatpro\Scripts\activate.bat
+
+
+
+https://chat.euron.one/s/15b9fade-154b-4f72-a984-10911c9533bb
+euri-1f3025f0ddab44e290bf86bed48790c9f4fd1325a59b42e49701607ebb5b9546
+
+uvicorn testing:app --host 0.0.0.0 --port 10000
+
+
+
+
+
+git config user.name
+git config user.email
+
+git config user.name "ganeshpatil0112"
+git config user.email "patilganesh0112@gmail.com"
+
+https://github.com/vipinvishal/Medical-chat-bot
+if anyone is facing some issue, i am shaing complete code. you can fork or pull it to local
+
+
 
 
 
@@ -24,3 +46,63 @@ qdrant_client = QdrantClient(
 )
 
 print(qdrant_client.get_collections())
+
+
+
+
+
+
+
+
+import chromadb
+  
+client = chromadb.CloudClient(
+  api_key='ck-DCTF6Z8XuaSKNBQ51V1AnX4uCbgc4sRJN94j91kRnC4H',
+  tenant='17ad0eb7-cbd6-4d5f-819d-72d78ea068e5',
+  database='GenAI_Test'
+)
+
+
+
+
+
+
+
+Pinecone:
+
+Ponecone API_KEY : pcsk_5H2coG_GBAVKAGrCHUwmbSWRvWHvrmnX5ETwvMVYcoECiBsPfTueQE3CCokbT9Z1oumL6i
+ 
+from pinecone import Pinecone, ServerlessSpec
+
+pc = Pinecone(api_key="********-****-****-****-************")
+ 
+index_name = "developer-quickstart-py"
+
+if not pc.has_index(index_name):
+
+    pc.create_index_for_model(
+
+        name=index_name,
+
+        cloud="aws",
+
+        region="us-east-1",
+
+        embed={
+
+            "model":"llama-text-embed-v2",
+
+            "field_map":{"text": "chunk_text"}
+
+        }
+
+    )
+ 
+https://sudhanshustory-7ztl95b.svc.aped-4627-b74a.pinecone.io
+ 
+from pinecone import Pinecone
+
+pc = Pinecone(api_key="********-****-****-****-************")
+
+index = pc.Index("quickstart")
+ 
