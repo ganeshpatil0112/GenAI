@@ -1,0 +1,67 @@
+nvidia-smi      - to check Nvidia configuration
+sudo add-apt-repository ppa:deadsnakes/ppa -y   - to update entire new machine
+sudo apt update     - to update the machine
+sudo apt install python3.12 python3.12-venv python3.12-dev -y       - install python into VM.
+--sudo kill -process_id -in case requried to kill process running on port
+
+python3.12 m venv .venv         - create python virtual environment
+source .venv/bin/activate       - activate virtual environment
+
+pip install --upgrade pip setuptools wheel      - upgrade pip wheel
+
+To host LLM over VM:
+using VLLM - to optimzzing inferencing of LLMs, efficiet output and output token generation.
+VLLM is used to launch the LLM models as an API with the optimized performence.
+below command will download VLLM and install it:
+'
+pip install --pre vllm==0.10.1+gptoss \
+--extra-index-url https://wheels.vllm.ai/gpt-oss \
+--extra-index-url https://download.pytorch.org/whl/nightly/cu128
+'
+
+after installing VLLM install your LLM model with help of VLLM:
+'
+vllm serve openai/gpt-oss-20b \
+--port 8000 \
+--gpu-memory-utilization 0.9 \
+--max-model-len 8192
+'
+
+
+watch -n 1 nvidia-smi       - to view live real time GPU graphics consumption
+
+access LLM from you VM
+
+http://IP:8000/v1/chat/completions
+
+
+now you can access it using CURL OR Pythin code:
+
+CURL Command:
+
+curl -X POST "http://185.216.20.22:8000/v1/chat/completions" \
+-H "Content-Type: application/json" \
+-H "Autherization: Bearer not-needed" \
+-d '{
+    "model": "openai/gpt-oss-20b",
+    "messages": [
+        {"role": "user", "content": "Explain quantum mechanics"}
+    ],
+    "max_tokens": 200
+}'
+
+
+Python Code:
+pip install openai
+
+import openai
+openai.api_base = "http://185.216.20.22:8000/v1"
+openai.api_kay = "not-needed"
+res = openai.ChatCompletion.create(
+    model="openai/gpt-oss-20b",
+    messages=[{"role": "user", "content": "Explain quantum mechanics"}],
+    stream=true
+)
+
+for chunk in res:
+    print(chunk.choices[0].delta.get("content",""), end="", flush=ture)
