@@ -1,10 +1,10 @@
 Navigate to your project directory:     cd /path/to/your/project
 
 Create the virtual environment: Use the venv module, which is built into Python 3.x, to create a new virtual environment:
-python -m venv medichatpro
+python -m venv .medichatpro
 
 Activate the virtual environment: The activation command depends on your operating system and shell.
-On Windows (Command Prompt):   .\medichatpro\Scripts\activate.bat
+On Windows (Command Prompt):   .\.medichatpro\Scripts\activate.bat
 
 
 
