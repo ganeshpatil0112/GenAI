@@ -67,3 +67,14 @@ res = openai.ChatCompletion.create(
 
 for chunk in res:
     print(chunk.choices[0].delta.get("content",""), end="", flush=ture)
+
+
+
+For application deployment:
+Applify from AWS OR VERSAL for front-end deployment
+For backend deployment use, ECR, ECS and AppRunner on top of that.
+ECR for Registery | ECS for serving | AppRunner for 
+
+If you want to attache aching or something then use REDIS.
+
+For Database can use AWS RDS and there you can chose any- PostgreSQL, 
