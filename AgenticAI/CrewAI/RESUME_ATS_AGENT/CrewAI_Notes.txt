@@ -1,0 +1,10 @@
+python -m venv .crew
+.\.crew\Scripts\activate
+
+python.exe -m pip install --upgrade pip
+
+pip install --upgrade pip setuptools wheel
+
+pip install -r requirements.txt
+
+streamlit run streamlit_app.py
