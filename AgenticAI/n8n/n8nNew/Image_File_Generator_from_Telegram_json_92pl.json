@@ -1,0 +1,920 @@
+{
+  "name": "Image File Generator from Telegram",
+  "nodes": [
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Listen for incoming events').item.json.message.from.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "id": "905e184f-71f5-4bc5-afec-bf432678e24f",
+      "name": "Send a photo message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1008,
+        288
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "7f8d6ca2-1364-463a-b006-b6bf64df1a2c",
+      "credentials": {
+        "telegramApi": {
+          "id": "v2N34gR3fEoX1Yp5",
+          "name": "Hyper Realistic Image"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "b4575560-93c5-4588-921f-d717e654f017",
+      "name": "Listen for incoming events",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "e1393b7a-a68e-467d-8e1d-2f855247e74c",
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "v2N34gR3fEoX1Yp5",
+          "name": "Hyper Realistic Image"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a0bf9719-4272-46f6-ab3b-eda6f7b44fd8",
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.message.text }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "14cd7b2f-04f1-4201-800c-4f824ed30cba",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        448,
+        0
+      ],
+      "typeVersion": 2.2
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "5c1eb630-79c4-49d0-a48a-538bbeeca8ae",
+      "name": "Speech to Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        464,
+        224
+      ],
+      "typeVersion": 1.3,
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "fields": {
+          "values": [
+            {
+              "name": "text",
+              "stringValue": "={{ $json?.message?.text || \"\" }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "6c8c3ec4-f7d8-4a04-9533-222ca6156269",
+      "name": "Voice or Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        0
+      ],
+      "typeVersion": 3.2
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $('Listen for incoming events').item.json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "9b7aece6-010f-4485-a03a-423ea972653a",
+      "name": "Get Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        240,
+        224
+      ],
+      "typeVersion": 1.1,
+      "webhookId": "16a05db4-c947-4c6a-8d98-f531c3772f42",
+      "credentials": {
+        "telegramApi": {
+          "id": "v2N34gR3fEoX1Yp5",
+          "name": "Hyper Realistic Image"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23c0d1fa-897f-4a1a-b201-8103e473adea",
+              "name": "data",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url }}",
+              "type": "string"
+            },
+            {
+              "id": "bcf338f7-575f-492b-ab68-535263d65a17",
+              "name": "base",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url.split(\",\")[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "6fff18a2-acc9-42b9-bf7c-6662ddb18ab3",
+              "name": "mime",
+              "value": "image/png",
+              "type": "string"
+            },
+            {
+              "id": "cb656296-3407-40cd-9271-88ee33710e12",
+              "name": "fileName",
+              "value": ".png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1456,
+        16
+      ],
+      "id": "13b229a4-70c1-4825-92aa-cceadcfb5ca0",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Write a high quality image prompt for an AI image generator to generate a super high-quality image, super realistic according to this description: {{ $json.text }}\nMake it super detailed, vibrant and beautiful.\n\nMake it suited for JSON string, so without any symbols or newlines. Just one plain text."
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        656,
+        16
+      ],
+      "id": "a6d052c5-c132-44fd-975a-019e6c7be870",
+      "name": "IMAGE PROMPT",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/gemini-2.5-flash-image-preview\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $('IMAGE PROMPT').item.json.message.content }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1264,
+        16
+      ],
+      "id": "9d5b8fe5-d762-4a4f-b4a3-a642b388c8b6",
+      "name": "NANO BANANA",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "T0ufqbedl8vXnJ4d",
+          "name": "Open Router"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base",
+        "options": {
+          "fileName": "={{ $json.fileName }}",
+          "mimeType": "={{ $json.mime }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        784,
+        288
+      ],
+      "id": "5e7ab2d5-0b23-499e-acad-3d220671d812",
+      "name": "Image"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('File Name Creator for Drive').item.json.message.content }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zAdsNiZI6I8AyzVGnj8p1HsUO418Eh9i",
+          "mode": "list",
+          "cachedResultName": "Image Generator 1",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1zAdsNiZI6I8AyzVGnj8p1HsUO418Eh9i"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        1008,
+        480
+      ],
+      "id": "e7ac96bd-ab04-4ceb-ad93-0e2ca0c776a4",
+      "name": "Upload file",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kdUjuGohYCwgZCMq",
+          "name": "Ai with Dhruv"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4",
+          "mode": "list",
+          "cachedResultName": "LInkedin Ai Autmation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 496980008,
+          "mode": "list",
+          "cachedResultName": "Image Collection 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit#gid=496980008"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image Link": "={{ $json.webViewLink }}",
+            "Image Promt": "={{ $('IMAGE PROMPT').item.json.message.content }}",
+            "File Name": "={{ $('File Name Creator for Drive').item.json.message.content }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Image Promt",
+              "displayName": "Image Promt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image Link",
+              "displayName": "Image Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        1216,
+        480
+      ],
+      "id": "44aaf093-7eef-4bb2-971a-76fa9423beca",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XdPsEAeVWvgXm2c8",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize this in short as a google drive file name {{ $json.message.content }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        960,
+        16
+      ],
+      "id": "e748d7e4-d940-4e89-862d-4b0a0fdbcb27",
+      "name": "File Name Creator for Drive",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.message.text }}",
+        "options": {
+          "systemMessage": "You are a helpful Euron Ai assistant keep answer very short  like chat"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        400,
+        752
+      ],
+      "id": "223d4ecf-1270-47c5-b864-d4b6b5801d75",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        352,
+        960
+      ],
+      "id": "d7be0b72-3e0c-4ac9-89f8-caf580440874",
+      "name": "2.5",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KDGQP2VnNEEeOqCv",
+          "name": "Gemini Model"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Eruon Gen ai').item.json.message.chat.id }}",
+        "text": "={{ $json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        752,
+        752
+      ],
+      "id": "86b13153-d715-4f34-937c-3ac864535a52",
+      "name": "Send a text message",
+      "webhookId": "f8288bcf-44f5-45d8-899b-9ff7334eafa7",
+      "credentials": {
+        "telegramApi": {
+          "id": "rnzdVtBaNkkoICIi",
+          "name": "Eruon Gen Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $json.message.text }}"
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        496,
+        992
+      ],
+      "id": "5191bade-9c5b-48b8-9672-971ef1263955",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.euron.one/api/v1/euri/images/generations",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n    \"prompt\": \"{{ $json.message.text }}\",\n    \"model\": \"black-forest-labs/FLUX.1-schnell\",\n    \"n\": 2,\n    \"size\": \"1024x1024\",\n    \"quality\": \"standard\",\n    \"response_format\": \"url\",\n    \"style\": \"vivid\"\n  } ",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1904,
+        320
+      ],
+      "id": "93fb324c-19cd-40d7-9611-28d41dff785e",
+      "name": "HTTP Request",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FBc0oNUSaiHZud92",
+          "name": "Perplexity"
+        },
+        "httpBearerAuth": {
+          "id": "1uOcgBVcCm36pZUi",
+          "name": "Euri Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23c0d1fa-897f-4a1a-b201-8103e473adea",
+              "name": "data",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url }}",
+              "type": "string"
+            },
+            {
+              "id": "bcf338f7-575f-492b-ab68-535263d65a17",
+              "name": "base",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url.split(\",\")[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "6fff18a2-acc9-42b9-bf7c-6662ddb18ab3",
+              "name": "mime",
+              "value": "image/png",
+              "type": "string"
+            },
+            {
+              "id": "cb656296-3407-40cd-9271-88ee33710e12",
+              "name": "fileName",
+              "value": ".png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        3952,
+        336
+      ],
+      "id": "445f9b8b-23fd-4006-bd7a-4a4dccea411e",
+      "name": "Edit Fields2"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "02f6663c-9df5-49a3-b5ce-6668b5ad6990",
+              "name": "data[0].url",
+              "value": "={{ $json.data[0].url }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        2064,
+        320
+      ],
+      "id": "89c56552-f80d-41c2-8a81-4a9af428f656",
+      "name": "Set"
+    },
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "88928a1d-3847-47d1-abbe-9f416e490c01",
+      "name": "Eruon Gen ai1",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        1712,
+        320
+      ],
+      "webhookId": "e1393b7a-a68e-467d-8e1d-2f855247e74c",
+      "typeVersion": 1,
+      "credentials": {
+        "telegramApi": {
+          "id": "rnzdVtBaNkkoICIi",
+          "name": "Eruon Gen Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// Correctly reference the input URL\nconst imageUrl = $input.first().json.data[0].url;\n\nasync function getBase64FromUrl(url) {\n  // 'this.helpers.httpRequest' returns Buffer when encoding:null\n  const response = await this.helpers.httpRequest({\n    method: 'GET',\n    url,\n    encoding: null // raw binary\n  });\n\n  // response is already a Buffer\n  const base64 = Buffer.from(response).toString('base64');\n\n  // Optional prefix with mime type (adjust if not PNG)\n  return `data:image/png;base64,${base64}`;\n}\n\nconst base64Image = await getBase64FromUrl.call(this, imageUrl);\n\n// Always return an array with objects in Code node\nreturn [\n  {\n    json: {\n      base64: base64Image\n    }\n  }\n];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2224,
+        320
+      ],
+      "id": "13f7183e-4241-4761-9578-e7500caf6c81",
+      "name": "Code in JavaScript"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "=base",
+        "binaryPropertyName": "=data",
+        "options": {
+          "fileName": "=Myimage.jpeg",
+          "mimeType": "{{ $json.mime }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        2560,
+        336
+      ],
+      "id": "0df9651c-9d7e-43e9-b6ce-ef57093141aa",
+      "name": "Image2"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Eruon Gen ai1').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2800,
+        320
+      ],
+      "id": "f30e6832-f1c5-40d7-ad07-f4c5ab1205e6",
+      "name": "Send a photo message1",
+      "webhookId": "f8288bcf-44f5-45d8-899b-9ff7334eafa7",
+      "credentials": {
+        "telegramApi": {
+          "id": "rnzdVtBaNkkoICIi",
+          "name": "Eruon Gen Ai"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "jsCode": "// INPUT: url OR a data URL string or raw base64 string.\n// If you already have base64, put it in `raw` below.\nconst raw = $json.base64 || $json.base || \"\"; // adapt to your field name\nconst fallbackName = \"image\";                  // used if we can't detect one\nconst fallbackMime = \"image/png\";\n\n// Map mime -> extension\nconst EXT = {\n  \"image/png\": \"png\",\n  \"image/jpeg\": \"jpg\",\n  \"image/webp\": \"webp\",\n  \"image/gif\": \"gif\"\n};\n\nfunction normalizeBase64(input) {\n  let mime = null;\n  let base = input.trim();\n\n  // 1) If it's a data URL, extract mime + strip prefix\n  const m = base.match(/^data:([\\w/+.-]+);base64,(.*)$/i);\n  if (m) {\n    mime = m[1].toLowerCase();\n    base = m[2];\n  }\n\n  // 2) Fix URL-safe or whitespace issues\n  base = base.replace(/\\s+/g, \"\");      // remove newlines/spaces\n  base = base.replace(/-/g, \"+\").replace(/_/g, \"/\"); // url-safe -> standard\n\n  // 3) Fix padding\n  const pad = base.length % 4;\n  if (pad) base = base + \"=\".repeat(4 - pad);\n\n  // 4) Quick sanity check: can Buffer decode it?\n  try {\n    // if this throws, the string isn't valid base64\n    Buffer.from(base, \"base64\");\n  } catch (e) {\n    throw new Error(\"Invalid base64 after normalization\");\n  }\n\n  return { mime, base };\n}\n\nconst { mime, base } = normalizeBase64(raw);\nconst finalMime = mime || $json.mime || fallbackMime;\nconst ext = EXT[finalMime] || \"bin\";\nconst fileName = ($json.fileName || `${fallbackName}.${ext}`).replace(/[^\\w.-]/g, \"_\");\n\nreturn {\n  json: {\n    base,          // CLEAN base64 (no prefix)\n    mime: finalMime,\n    fileName\n  }\n};"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2400,
+        320
+      ],
+      "id": "a5a6ea86-f9c8-45c5-8f33-5b0859b3b006",
+      "name": "2nd Code"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Listen for incoming events": {
+      "main": [
+        [
+          {
+            "node": "Voice or Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Get Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IMAGE PROMPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice or Text": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Voice File": {
+      "main": [
+        [
+          {
+            "node": "Speech to Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Speech to Text": {
+      "main": [
+        [
+          {
+            "node": "IMAGE PROMPT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAGE PROMPT": {
+      "main": [
+        [
+          {
+            "node": "File Name Creator for Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NANO BANANA": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Name Creator for Drive": {
+      "main": [
+        [
+          {
+            "node": "NANO BANANA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        []
+      ]
+    },
+    "2.5": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "Set",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Eruon Gen ai1": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "2nd Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image2": {
+      "main": [
+        [
+          {
+            "node": "Send a photo message1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2nd Code": {
+      "main": [
+        [
+          {
+            "node": "Image2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "9bbd66bd-11a7-4ba9-be18-7f6b6f9aeb2a",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efe1dfb464309204d7061d14c50a47d27ff5ac930cfe91f009223911522113f8"
+  },
+  "id": "QVMQD35ykaDTyp01",
+  "tags": []
+}

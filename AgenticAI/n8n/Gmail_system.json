@@ -1,0 +1,103 @@
+{
+  "name": "Gmail_system",
+  "nodes": [
+    {
+      "parameters": {
+        "public": true,
+        "initialMessages": "Hi there! 👋\nMy name is Ganesh. How can I assist you today?",
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        0,
+        0
+      ],
+      "id": "130b2cc7-6ac6-4c0b-b5e2-cba990f536ed",
+      "name": "When chat message received",
+      "webhookId": "7243701c-e717-43bd-ae39-ea30636660ff"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "047053e9-3ca4-40a4-b932-d165e8bddf39",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        208,
+        0
+      ],
+      "id": "bf80f628-437b-42e7-96e3-04f38f588358",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "sendTo": "patilganesh0318@gmail.com",
+        "subject": "Mail From chat model",
+        "message": "={{ $json.chatInput }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        416,
+        0
+      ],
+      "id": "4319d8b0-2ee1-4d28-945a-13358472143b",
+      "name": "Send a message",
+      "webhookId": "99f76432-c798-4f19-8f29-f83433c5542e",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "1HCZh4IFTb9TKWKR",
+          "name": "Gmail account"
+        }
+      }
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "c5e1968b-a5a4-4bd7-b00c-1de126397148",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "a474326e1a3fc0d77d2fc3ecd70a3123d4489b41c6320158f72d5485859c47f9"
+  },
+  "id": "2ZB3h3Y6FtPwC1lP",
+  "tags": []
+}

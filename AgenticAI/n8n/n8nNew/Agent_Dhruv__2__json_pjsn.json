@@ -1,0 +1,1953 @@
+{
+  "name": "Agent Dhruv",
+  "nodes": [
+    {
+      "parameters": {
+        "updates": [
+          "message"
+        ],
+        "additionalFields": {}
+      },
+      "id": "3b15bea3-327b-4475-ad58-055eacb52bab",
+      "name": "Telegram Trigger",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "typeVersion": 1.1,
+      "position": [
+        560,
+        912
+      ],
+      "webhookId": "99eab1a0-569d-4f0f-a49e-578a02abfe63",
+      "credentials": {
+        "telegramApi": {
+          "id": "YEsfGVduxXH2qtuH",
+          "name": "Agent Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "fe7ecc99-e1e8-4a5e-bdd6-6fce9757b234",
+              "name": "text",
+              "value": "={{ $json.message.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "3212948f-6ba7-4bde-adb8-9c2456592790",
+      "name": "Set 'Text'",
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1040,
+        928
+      ]
+    },
+    {
+      "parameters": {
+        "resource": "file",
+        "fileId": "={{ $json.message.voice.file_id }}",
+        "additionalFields": {}
+      },
+      "id": "d09768ab-cc40-494c-8451-6b7d63b2b0f3",
+      "name": "Download Voice File",
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        976,
+        752
+      ],
+      "webhookId": "c0b376b1-7b63-41b6-8063-0b3096b8333d",
+      "credentials": {
+        "telegramApi": {
+          "id": "YEsfGVduxXH2qtuH",
+          "name": "Agent Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "audio",
+        "operation": "transcribe",
+        "options": {}
+      },
+      "id": "4ac2b4b9-68d2-41d9-8c64-1bcef512335e",
+      "name": "Transcribe Audio",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.6,
+      "position": [
+        1136,
+        752
+      ],
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.message.voice.file_id }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Voice"
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "8c844924-b2ed-48b0-935c-c66a8fd0c778",
+                    "leftValue": "={{ $json.message.text }}",
+                    "rightValue": "",
+                    "operator": {
+                      "type": "string",
+                      "operation": "exists",
+                      "singleValue": true
+                    }
+                  }
+                ],
+                "combinator": "and"
+              },
+              "renameOutput": true,
+              "outputKey": "Text"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "id": "22a489df-5e4d-42d6-af55-639bda392f79",
+      "name": "Switch",
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        800,
+        912
+      ]
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.input }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are the ultimate personal assistant. Your job is to send the user's query to the correct tool. You should never be writing emails or creating summaries — your sole responsibility is to call the correct tool.\n\n## Tools\n- **Think**: Use this to think deeply or if you get stuck\n- **emailAgent**: Use this tool to take action in email\n- **calendarAgent**: Use this tool to take action in calendar\n- **contactAgent**: Use this tool to get, update, or add contacts\n- **contentCreator**: Use this tool to create blog posts\n- **Web Agent**: Use this tool to perform deeper web research or get current weather info\n- **youtubeAgent**: Use this tool to find high-performing videos or manage video ideas\n-**Stock Agent**:Use this tool to perform web search or get current stock live info & Updates\n-**Growth Architect**: Use this tool for anything related to sales growth, revenue strategy, pipeline optimization, and lead generation. It acts as your VP of Sales / CRO on demand\n-**Promt Agent**: Prompt Agent = Master Prompt Engineer. Use it to generate the best AI prompts for text, images, video, code, or workflows.\n \n## Rules\n- Some actions require you to look up contact information first. For the following actions, you must get contact information and send that to the agent who needs it:\n  - sending emails\n  - drafting emails\n  - creating calendar event with attendee\n\n## Instructions\n1) Call the necessary tools based on the user's request\n2) Use the **Think** tool to verify you took the right steps. This tool should be called every time.\n\n## Examples\n1) \n- Input: send an email to Dhruv asking him what time he wants to leave  \n  - Action: Use **contactAgent** to get Dhruv's email  \n  - Action: Use **emailAgent** to send the email. You will pass the tool a query like:  \n    \"send Dhruv an email to ask what time he wants to leave. here is his email: [email address]\"\n- Output: The email has been sent to Dhruv. Anything else I can help you with?\n- Try to be fast and superresponsi\n\n## Final Reminders\nHere is the current date/time: {{ $now }}\n",
+          "returnIntermediateSteps": true
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.1,
+      "position": [
+        1968,
+        960
+      ],
+      "id": "3e8d904f-f6f1-4ed4-9a88-118304ecc6b3",
+      "name": "AI Agent",
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $fromAI(\"emailAddress\") }}",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        1632
+      ],
+      "id": "763bb60c-dc3c-4059-a2d1-4240693360e9",
+      "name": "Send Email",
+      "webhookId": "86c8c4b1-13bb-4ebe-acb9-30e1d7082d55",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "limit": "={{ $fromAI(\"limit\",\"how many emails the user wants\") }}",
+        "simple": false,
+        "filters": {
+          "sender": "={{ $fromAI(\"sender\",\"who the emails are from\") }}"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1456,
+        1632
+      ],
+      "id": "23c96065-b629-4562-a29f-e5d1778adb6e",
+      "name": "Get Emails",
+      "webhookId": "af4b3298-9037-44b0-aa12-2acbfbb5e66f",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "draft",
+        "subject": "={{ $fromAI(\"subject\") }}",
+        "emailType": "html",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {
+          "threadId": "={{ $fromAI(\"threadID\") }}",
+          "sendTo": "={{ $fromAI(\"emailAddress\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1840,
+        1488
+      ],
+      "id": "e41adddb-2f1d-447e-9595-45ea0012e648",
+      "name": "Create Draft",
+      "webhookId": "17016bce-d7d7-428a-a56c-f6ea122db8be",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "reply",
+        "messageId": "={{ $fromAI(\"ID\",\"the message ID\") }}",
+        "message": "={{ $fromAI(\"emailBody\") }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1584,
+        1488
+      ],
+      "id": "57119c8b-ba4d-4f4b-a0f3-e9553ba0cf60",
+      "name": "Email Reply",
+      "webhookId": "114785e6-a859-432b-81b4-c490c1c35b1c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1584,
+        1632
+      ],
+      "id": "0101567e-0c55-4c3a-a2f5-610b0b9f1df7",
+      "name": "Get Labels",
+      "webhookId": "9e08b59e-792d-4566-83f1-9263c9ad86ae",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "addLabels",
+        "messageId": "={{ $fromAI(\"ID\",\"the ID of the message\") }}",
+        "labelIds": "={{ $fromAI(\"labelID\") }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1712,
+        1488
+      ],
+      "id": "aba367d4-6b48-4421-a4df-0c6ed573a712",
+      "name": "Label Emails",
+      "webhookId": "0e951529-2e6d-40bf-ac40-fc0947e242e2",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "markAsUnread",
+        "messageId": "={{ $fromAI(\"messageID\") }}"
+      },
+      "type": "n8n-nodes-base.gmailTool",
+      "typeVersion": 2.1,
+      "position": [
+        1712,
+        1632
+      ],
+      "id": "a222a808-bffa-4531-aaf7-19506f732a05",
+      "name": "Mark Unread",
+      "webhookId": "a35af9d8-f67d-4ff9-803f-59ec6356e795",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "An email agent for all email actions",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are an email management assistant. All emails must be formatted professionally in HTML and signed off as \"Dhruv.\" \n\n**Email Management Tools**   \n   - Use \"Send Email\" to send emails.  \n   - Use \"Create Draft\" if the user asks for a draft.  \n   - Use \"Get Emails\" to retrieve emails when requested.\n   - Use \"Get Labels\" to retrieve labels.\n   - Use \"Mark Unread\" to mark an email as unread. You must use \"Get Emails\" first so you have the message ID of the email to flag.\n   - Use \"Label Email\" to flag an email. You must use \"Get Emails\" first so you have the message ID of the email to flag. Then you must use \"Get Labels\" so you have the label ID.\n   - Use \"Email Reply\" to reply to an email. You must use \"Get Emails\" first so you have the message ID of the email to reply to.\n\n## Final Notes\n- Here is the current date/time: {{ $now }}"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        1632,
+        1312
+      ],
+      "id": "5f29dfe7-e43d-40ad-85b4-3052d4d8f70d",
+      "name": "Email Agent"
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "aiwithdhruv@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aiwithdhruv@gmail.com"
+        },
+        "start": "={{ $fromAI(\"eventStart\") }}",
+        "end": "={{ $fromAI(\"eventEnd\") }}",
+        "additionalFields": {
+          "attendees": [
+            "={{ $fromAI(\"eventAttendeeEmail\") }}"
+          ],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2240,
+        1632
+      ],
+      "id": "e351722b-5e62-4b4d-ab49-bf7b23af4086",
+      "name": "Create Event with Attendee",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "95Gb3q1DZqzoJ7mu",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "calendar": {
+          "__rl": true,
+          "value": "aiwithdhruv@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aiwithdhruv@gmail.com"
+        },
+        "start": "={{ $fromAI(\"eventStart\") }}",
+        "end": "={{ $fromAI(\"eventEnd\") }}",
+        "additionalFields": {
+          "attendees": [],
+          "summary": "={{ $fromAI(\"eventTitle\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        1984,
+        1632
+      ],
+      "id": "9e3eaf51-44e3-49c1-adb1-a32a6b675861",
+      "name": "Create Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "95Gb3q1DZqzoJ7mu",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "getAll",
+        "calendar": {
+          "__rl": true,
+          "value": "aiwithdhruv@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aiwithdhruv@gmail.com"
+        },
+        "timeMin": "={{ $fromAI(\"dayBefore\",\"the day before the date the user requested\") }}",
+        "timeMax": "={{ $fromAI(\"dayAfter\",\"the day after the date the user requested\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2240,
+        1488
+      ],
+      "id": "e4d0ec81-5558-476b-ba14-3326d8e61702",
+      "name": "Get Events",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "95Gb3q1DZqzoJ7mu",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "delete",
+        "calendar": {
+          "__rl": true,
+          "value": "aiwithdhruv@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aiwithdhruv@gmail.com"
+        },
+        "eventId": "={{ $fromAI(\"eventID\") }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2112,
+        1488
+      ],
+      "id": "8538bf9b-1f23-47b0-a880-b8bb0327e302",
+      "name": "Delete Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "95Gb3q1DZqzoJ7mu",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "update",
+        "calendar": {
+          "__rl": true,
+          "value": "aiwithdhruv@gmail.com",
+          "mode": "list",
+          "cachedResultName": "aiwithdhruv@gmail.com"
+        },
+        "eventId": "={{ $fromAI(\"eventID\") }}",
+        "updateFields": {
+          "end": "={{ $fromAI(\"endTime\") }}",
+          "start": "={{ $fromAI(\"startTime\") }}"
+        }
+      },
+      "type": "n8n-nodes-base.googleCalendarTool",
+      "typeVersion": 1.3,
+      "position": [
+        2112,
+        1632
+      ],
+      "id": "94ee5b77-57b9-43e4-b18b-106fe3a2c6da",
+      "name": "Update Event",
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "95Gb3q1DZqzoJ7mu",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "A calendar agent for all calendar actions",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=# Overview\nYou are a calendar assistant. Your responsibilities include creating, getting, and deleting events in the user's calendar.\n\n**Calendar Management Tools**  \n   - Use \"Create Event with Attendee\" when an event includes a participant.  \n   - Use \"Create Event\" for solo events.   \n   - Use \"Get Events\" to fetch calendar schedules when requested.\n   - Use \"Delete Event\" to delete an event. You must use \"Get Events\" first to get the ID of the event to delete.\n   - Use \"Update Event\" to update an event. You must use \"Get Events\" first to get the ID of the event to update.\n\n## Final Notes\nHere is the current date/time: {{ $now }}\nIf a duration for an event isn't specified, assume it will be one hour."
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2000,
+        1312
+      ],
+      "id": "f6b39419-02f5-4995-bfe4-a9913f982865",
+      "name": "Calendar Agent"
+    },
+    {
+      "parameters": {
+        "jsCode": "// Initialize the output arrays\nconst steps = [];\nconst tokens = [];\nlet totalTokens = 0; // Changed to track total tokens instead of cost\n\n// Process each item in the input\nfor (const item of $input.all()) {\n  let data = item.json;\n  \n  // Check if the data is an array itself (like your example JSON)\n  if (Array.isArray(data)) {\n    // Process each object in the array\n    for (const obj of data) {\n      // Extract steps information\n      if (obj.intermediateSteps && Array.isArray(obj.intermediateSteps)) {\n        for (const step of obj.intermediateSteps) {\n          if (step.action) {\n            steps.push({\n              tool: step.action.tool,\n              toolInput: step.action.toolInput,\n              observation: step.observation\n            });\n          }\n        }\n      }\n      \n      // Extract token information\n      if (obj.intermediateSteps && Array.isArray(obj.intermediateSteps)) {\n        for (const step of obj.intermediateSteps) {\n          if (step.action && step.action.messageLog && Array.isArray(step.action.messageLog)) {\n            for (const message of step.action.messageLog) {\n              if (message.kwargs && message.kwargs.response_metadata && message.kwargs.response_metadata.usage) {\n                const usage = message.kwargs.response_metadata.usage;\n                tokens.push({\n                  prompt_tokens: usage.prompt_tokens,\n                  completion_tokens: usage.completion_tokens,\n                  total_tokens: usage.total_tokens,\n                  model_name: message.kwargs.response_metadata.model_name\n                });\n                \n                // Add the tokens to our running total\n                if (typeof usage.total_tokens === 'number') {\n                  totalTokens += usage.total_tokens;\n                }\n              }\n            }\n          }\n        }\n      }\n    }\n  } else {\n    // If data is not an array, process it as a single object\n    // Extract steps information\n    if (data.intermediateSteps && Array.isArray(data.intermediateSteps)) {\n      for (const step of data.intermediateSteps) {\n        if (step.action) {\n          steps.push({\n            tool: step.action.tool,\n            toolInput: step.action.toolInput,\n            observation: step.observation\n          });\n        }\n      }\n    }\n    \n    // Extract token information\n    if (data.intermediateSteps && Array.isArray(data.intermediateSteps)) {\n      for (const step of data.intermediateSteps) {\n        if (step.action && step.action.messageLog && Array.isArray(step.action.messageLog)) {\n          for (const message of step.action.messageLog) {\n            if (message.kwargs && message.kwargs.response_metadata && message.kwargs.response_metadata.usage) {\n              const usage = message.kwargs.response_metadata.usage;\n              tokens.push({\n                prompt_tokens: usage.prompt_tokens,\n                completion_tokens: usage.completion_tokens,\n                total_tokens: usage.total_tokens,\n                model_name: message.kwargs.response_metadata.model_name\n              });\n              \n              // Add the tokens to our running total\n              if (typeof usage.total_tokens === 'number') {\n                totalTokens += usage.total_tokens;\n              }\n            }\n          }\n        }\n      }\n    }\n  }\n}\n\n// Return the processed data with total_tokens included\nreturn [{\n  json: {\n    steps: steps,\n    tokens: tokens,\n    total_tokens: totalTokens\n  }\n}];"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        2336,
+        800
+      ],
+      "id": "b8f81571-ff57-4ce5-9042-26c3a1b0ddf7",
+      "name": "Clean Up"
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4",
+          "mode": "list",
+          "cachedResultName": "LInkedin Ai Autmation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 446112673,
+          "mode": "list",
+          "cachedResultName": "Agent Dhruv",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit#gid=446112673"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Timestamp": "{{ $now.format('yyyy-MM-dd hh:m a') }}",
+            "Workflow": "{{ $workflow.name }}",
+            "Input": "{{ $('Input').item.json.input }}",
+            "Output": "{{ $('AI Agent').item.json.output }}",
+            "Actions": "{{ JSON.stringify($json.steps, null, 2) }}",
+            "Tokens": "{{ JSON.stringify($json.tokens, null, 2) }}",
+            "Total Tokens": "{{ $json.total_tokens }}"
+          },
+          "matchingColumns": [],
+          "schema": [
+            {
+              "id": "Timestamp",
+              "displayName": "Timestamp",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Workflow",
+              "displayName": "Workflow",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Input",
+              "displayName": "Input",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Output",
+              "displayName": "Output",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Actions",
+              "displayName": "Actions",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Tokens",
+              "displayName": "Tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Total Tokens",
+              "displayName": "Total Tokens",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.6,
+      "position": [
+        2480,
+        800
+      ],
+      "id": "1695cb87-2270-4591-8049-065c7cdbab2e",
+      "name": "Append row in sheet",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XdPsEAeVWvgXm2c8",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolThink",
+      "typeVersion": 1,
+      "position": [
+        1328,
+        1312
+      ],
+      "id": "b553c3f0-7669-4e76-b14d-7affa944d1f3",
+      "name": "Think"
+    },
+    {
+      "parameters": {
+        "sessionIdType": "customKey",
+        "sessionKey": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "contextWindowLength": 20
+      },
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "typeVersion": 1.3,
+      "position": [
+        1456,
+        1312
+      ],
+      "id": "0c9f580d-cabf-4159-b291-c9528b5dc2f5",
+      "name": "Simple Memory"
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $json.error }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2336,
+        976
+      ],
+      "id": "2fcf957e-7dfd-41aa-8694-8254fc70a498",
+      "name": "Error Message",
+      "webhookId": "7065a160-b927-43b6-b327-feec46cc0088",
+      "credentials": {
+        "telegramApi": {
+          "id": "YEsfGVduxXH2qtuH",
+          "name": "Agent Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "text": "={{ $('AI Agent').item.json.output }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2624,
+        800
+      ],
+      "id": "99595ae1-411b-4446-85d1-0b28ea686b0d",
+      "name": "Response",
+      "webhookId": "4d174459-d5cc-4297-a449-369d3f10ef23",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": true,
+      "credentials": {
+        "telegramApi": {
+          "id": "YEsfGVduxXH2qtuH",
+          "name": "Agent Dhruv"
+        }
+      },
+      "onError": "continueErrorOutput"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "976cf2c9-01b6-46cf-97b4-675a67ca57bc",
+              "name": "input",
+              "value": "={{ $json.text }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1312,
+        912
+      ],
+      "id": "03e5a2e3-8fa7-4a57-a46a-34ac02438b53",
+      "name": "Input"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1344,
+        1600
+      ],
+      "id": "fb5685a9-410f-47c7-83ef-f2770a3a75b8",
+      "name": "GPT-5 Nano1",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        1984,
+        1488
+      ],
+      "id": "86225748-25e4-49c6-b197-7e0e348c7a28",
+      "name": "GPT-5 Nano2",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "A Stock Agent for all Live Stock actions",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=ROLE\nYou are a Stock Market Assistant, tasked with delivering live stock and index updates plus actionable insights—everything wrapped in a clear, structured reply.\n\n⸻\n\nResponsibilities\n\t1.\tAlways start with live market data (or closest real-time data) for:\n\t•\tNifty 50\n\t•\tNifty Bank\n\t•\tAny requested stock(s) (price, change, percentage, and volume if available)\n\t2.\tIf data isn’t fresh or available, use the Web Agent to fetch it via a search query like (“live Nifty 50 update”) or (“current Infosys stock price”).\n\t3.\tAfter the live update, include:\n\t•\tQuick context (e.g., sector drivers)\n\t•\tNotable movement or trend commentary (e.g., “Reliance surges 2% on strong earnings”)\n\t•\tOnly additional data if explicitly requested (historical performance, charts, forecasts, etc.)\n\t4.\tIf multiple tickers are specified, present them in a neat bullet list or mini table.\n\t5.\tKeep responses concise, numeric, and free of speculation.\n\n    6. Always give data as per NSE for Indian Stocks untill somone specifically asked about NSE/BSE or something else\n⸻\n\nInputs You Might Receive\n\t•\t“Live update for Infosys”\n\t•\t“How is the Nifty Bank doing today?”\n\t•\t“Show me Nifty, Sensex, and L&T stock price”\n\n⸻\n\nAutomation Tools (Optional)\n\t•\tGet Live Data: Fetch real-time prices for Nifty 50, Nifty Bank, or specific tickers.\n\t•\tWeb Agent: Run queries like \"latest Nifty 50 value\" or \"Infosys stock price today\" and scrape results if live data is needed.\n\t•\tGet Historical Data: Only use if user explicitly asks for historical trends or charts.\n\n⸻\n\nFinal Notes\n\t•\tAlways put live data first—structured, clear, and crisp.\n\t•\tAppend the current timestamp using: {{ $now }}\n\t•\tBe transparent: if data is unavailable, say: “⚠ Live data not available right now.”\n\n\nLive Market Update ({{ $now }})\n• Nifty 50: 19,850.40 (+0.65%)\n• Nifty Bank: 45,120.25 (–0.12%)\n• Infosys: ₹1,520.30 (+1.8%, strong volume)\n\nContext: IT sector rally boosting broad indices. InfoSys leads with solid intraday strength tracking earnings buzz. "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2432,
+        1312
+      ],
+      "id": "e0408b56-8b49-4e3d-90e5-ef65cb96a552",
+      "name": "Stock Agent"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "gpt-5-nano"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        2368,
+        1504
+      ],
+      "id": "c3ddab83-3672-44c7-bbcd-cb6ee455fd0a",
+      "name": "GPT-5 Nano3",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "You are the Growth Architect, a VP of Sales AI Agent with 10+ years of expertise scaling SaaS revenue engines. You act as a top-tier consultant who knows everything",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=ROLE:\nYou are the Growth Architect, a VP of Sales AI Agent with 10+ years of expertise scaling SaaS revenue engines. You act as a top-tier consultant who knows everything about:\n\t•\tCompany revenue levers (pipeline, CAC, LTV, pricing, churn)\n\t•\tSales growth strategy (B2B SaaS playbooks, GTM models, sales org design)\n\t•\tLead generation & conversion (SDR/AE systems, outbound & inbound tactics)\n\t•\tForecasting & reporting (predictive models, dashboards, metrics tracking)\n\t•\tCompetitive positioning (pricing benchmarks, differentiation, win/loss intel)\n\nWhen company-internal data is missing, use Web Agent to pull latest insights on competitors, markets, or pricing.\n\n⸻\n\n3. Responsibilities & Capabilities\n\nA. Sales Growth & Revenue Strategy\n\t•\tBuild GTM strategies (inbound, outbound, ABM, PLG).\n\t•\tAdvise on pricing models & monetization.\n\t•\tRecommend org design: SDRs, AEs, CSMs.\n\t•\tAlign sales targets to revenue outcomes.\n\nB. Pipeline & Lead Management\n\t•\tOptimize funnel stages: awareness → SQL → closed/won.\n\t•\tRecommend lead scoring, routing, and prioritization frameworks.\n\t•\tDiagnose pipeline leakage & offer fixes.\n\nC. Forecasting & Analytics\n\t•\tCreate monthly/quarterly sales forecasts.\n\t•\tTrack CAC payback, churn, LTV, and NRR.\n\t•\tSuggest dashboards and key KPIs for CRO/CEO.\n\nD. Sales Process Execution\n\t•\tDraft outreach cadences, email sequences, objection handling scripts.\n\t•\tOptimize conversion rates across channels (LinkedIn, email, events).\n\t•\tRecommend CRM automations & AI tools.\n\nE. Market Intelligence (via Web Agent)\n\t•\tBenchmark competitors’ pricing & GTM moves.\n\t•\tTrack industry growth trends.\n\t•\tPull live financial data of listed competitors.\n\n⸻\n\n4. Input Types It Can Handle\n\t•\tTactical requests: “Give me a LinkedIn outbound sequence for CFOs in India.”\n\t•\tStrategic requests: “How do we grow revenue 3x in 12 months?”\n\t•\tAnalytical requests: “What’s our projected pipeline coverage if we add 2 SDRs?”\n\t•\tMarket intel: “Pull competitor pricing for Procore in India.”\n\n⸻\n\n5. Rules for Responses\n\t1.\tAlways start with data-driven insights (use company data or fetch live from web).\n\t2.\tBreak answers into structured frameworks (steps, playbooks, tables).\n\t3.\tBalance strategic view (CEO lens) with tactical action steps (sales manager lens).\n\t4.\tIf web lookup is required, clearly mark:\n→ “Fetching competitor pricing from web…”\n→ Then add the structured insights.\n\t5.\tKeep tone authoritative but actionable (McKinsey + Gong).\n\n⸻\n\n6. Example Use Cases\n\nUser: “We need to increase MRR from $100k to $300k in 12 months. What’s the plan?”\nAgent Response:\n\nRevenue Growth Blueprint (12 months)\n1️⃣ Pipeline Expansion → Hire 2 SDRs → 40 SQLs/month → +$80k ARR\n2️⃣ Upsell Engine → Launch tiered packaging → Target 20% expansion revenue\n3️⃣ Churn Reduction → NRR > 120% → Focus on top 50 accounts\n4️⃣ Pricing Adjustment → Benchmark vs competitors (fetching live data) → +15% ASP\n5️⃣ Automation → Deploy AI-driven outreach → Save 200 hrs/month\n\n→ Projected: MRR $310k by Q4 if executed with 85% attainment\n\n7. Final Notes\n\t•\tCurrent date/time: {{ $now }}\n\t•\tGrowth Architect should always assume it has full visibility into company sales, pipeline, and financials.\n\t•\tIf data isn’t in memory, it can fetch it via the Web Agent.\n\t•\tNever give vague advice — every answer must include specific steps, timeframes, and measurable outcomes.\n\t• Keep concise and short if user dont ask in more details "
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        2768,
+        1312
+      ],
+      "id": "dce3c083-c61b-4c85-895c-834770f6340b",
+      "name": "Growth Architect"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://api.perplexity.ai/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"sonar-pro\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": \"{{ $json.input }}\"\n    }\n  ]\n}",
+        "options": {
+          "redirect": {
+            "redirect": {}
+          }
+        }
+      },
+      "type": "n8n-nodes-base.httpRequestTool",
+      "typeVersion": 4.2,
+      "position": [
+        2544,
+        1664
+      ],
+      "id": "60af6442-7a82-4e0b-b8de-a8a46651f784",
+      "name": "Web Agent",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "FBc0oNUSaiHZud92",
+          "name": "Perplexity"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        784
+      ],
+      "id": "78cd6eef-7b8c-4c55-bd2f-778c235e9e15",
+      "name": "No Operation, do nothing"
+    },
+    {
+      "parameters": {
+        "sendTo": "aiwithdhruv@gmail.com",
+        "subject": "={{ $('Input').item.json.input }}",
+        "emailType": "text",
+        "message": "={{ $('AI Agent').item.json.output }}",
+        "options": {
+          "appendAttribution": false
+        }
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        2848,
+        944
+      ],
+      "id": "8e14fff6-72a4-43ed-8ca2-1293bc1f2930",
+      "name": "Send a message",
+      "webhookId": "d27e254f-b717-42e6-a079-2f443289a60c",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "NFcquldokf6n1gVq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        3024,
+        944
+      ],
+      "id": "29479d96-75e3-45d8-8520-6d820fc6487e",
+      "name": "No Operation, do nothing1"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        2832,
+        1584
+      ],
+      "id": "adb20273-2bc7-4fa8-8dd8-968ed2827b60",
+      "name": "2.5 Flash",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KDGQP2VnNEEeOqCv",
+          "name": "Gemini Model"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        3200,
+        1600
+      ],
+      "id": "ddb602d1-6126-4356-92d9-f0c1185e9ee3",
+      "name": "2.5 Flash1",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KDGQP2VnNEEeOqCv",
+          "name": "Gemini Model"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "toolDescription": "You are the Prompt Agent, an AI master prompt engineer with 10+ years of expertise in creating world-class prompts.\nYou transform any topic or goal into the most optimized AI prompt possible — tailored for the right output type (text, image, video, code, or workflow).",
+        "text": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('Prompt__User_Message_', ``, 'string') }}",
+        "options": {
+          "systemMessage": "=1. Agent Role\n\nYou are the Prompt Agent, an AI master prompt engineer with 10+ years of expertise in creating world-class prompts.\nYou transform any topic or goal into the most optimized AI prompt possible — tailored for the right output type (text, image, video, code, or workflow).\n\n⸻\n\n2. Core Purpose\n\t•\tGenerate the best prompts on demand for any AI system.\n\t•\tCover all modalities: text, images, videos, code, audio, workflows.\n\t•\tEnsure prompts are clear, detailed, actionable, and context-aware.\n\t•\tAlways structure them for maximum performance in the target AI model.\n\n⸻\n\n3. Responsibilities & Capabilities\n\nA. Prompt Creation by Type\n\t•\tImage Prompts → For MidJourney, DALL·E, Stable Diffusion (photorealistic, cinematic, product mockups).\n\t•\tVideo Prompts → For Runway, Pika, or any text-to-video tool (storyboard-style detail).\n\t•\tText Prompts → For ChatGPT, Claude (articles, LinkedIn posts, scripts, Q&A).\n\t•\tCode Prompts → For AI coding agents (detailed instructions, constraints, language-specific context).\n\t•\tWorkflow Prompts → For n8n, Zapier, automation agents (system + action + variables).\n\nB. Prompt Optimization\n\t•\tBreak vague topics into precise instructions.\n\t•\tAdd style, tone, structure, and format.\n\t•\tDefine roles (e.g., “You are a McKinsey consultant” or “You are a Pixar animator”).\n\t•\tInclude constraints (max length, format, tools allowed).\n\nC. Prompt Enhancement\n\t•\tSuggest alternatives (3–5 variations for testing).\n\t•\tAdd context injection (industry, audience, style).\n\t•\tAdapt prompts for different AIs (ChatGPT, MidJourney, Runway, etc.).\n\nD. Web Agent Integration\n\t•\tIf context is missing (e.g., “latest market trend” or “2025 film style”), call Web Agent to fetch supporting info and then embed it into the prompt.\n\n⸻\n\n4. Rules for Outputs\n\t1.\tAlways start with the optimized prompt — formatted cleanly and copy-paste ready.\n\t2.\tClearly label the target use: (Image Prompt / Video Prompt / Text Prompt / Code Prompt).\n\t3.\tProvide 2–3 variations if helpful (creative vs professional vs concise).\n\t4.\tIf unclear request, ask clarifying questions before generating.\n\t5.\tNever give meta-explanations — output must be usable directly.\n\n⸻\n\n5. Input Examples It Can Handle\n\t•\t“Give me a cinematic image prompt of a lion on Wall Street.”\n\t•\t“Write a text-to-video prompt for a SaaS founder pitching investors.”\n\t•\t“I need a LinkedIn post prompt for AI sales growth hacks.”\n\t•\t“Generate a Python code prompt to scrape Google Maps leads.”\n\t•\t“Create an automation workflow prompt for n8n to sync leads to CRM.”\n\n⸻\n\n6. Example Behaviors\n\nUser Input: “I want an image of an astronaut drinking chai on the moon at sunset.”\nPrompt Agent Output:\n\nImage Prompt (Photorealistic): \n\"A cinematic ultra-HD image of an astronaut sitting cross-legged on the moon, drinking chai in a small steel cup, with Earth rising in the background, warm golden sunset lighting, realistic textures, high contrast shadows, DSLR depth of field.\"\n\nUser Input: “Create a LinkedIn post about AI saving time for founders.”\nPrompt Agent Output:\nText Prompt:\n\"Write a conversational LinkedIn post (max 2,800 characters) targeted at startup founders. \nTone: casual yet insightful. \nHook: start with a time-frustration story. \nBody: show 3 AI use-cases saving 10+ hours/week. \nEnd with reflection and hashtags. \nAdd emoji sequence for readability.\"\n\n7. Final Notes\n\t•\tCurrent date/time: {{ $now }}\n\t•\tThe Prompt Agent must always assume the goal is to create the single best possible prompt for the specified type.\n\t•\tIf the request is ambiguous, generate prompts for multiple formats (e.g., both text + image).\n\t•\tOutput must always be ready-to-use, no explanations.\n\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agentTool",
+      "typeVersion": 2.2,
+      "position": [
+        3136,
+        1328
+      ],
+      "id": "a6b23d5e-2734-4249-81ba-ece69be15b52",
+      "name": "Promt Agent"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "typeVersion": 1,
+      "position": [
+        1232,
+        1312
+      ],
+      "id": "fb39cf11-c30e-4bea-ac6e-2b347e4264d6",
+      "name": "2.5 Flash2",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KDGQP2VnNEEeOqCv",
+          "name": "Gemini Model"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "leftValue": "={{ $json.input }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "id": "9a0996bf-a1cf-487a-adfe-1369dadf558e"
+                  }
+                ],
+                "combinator": "and"
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "leftValue": "",
+                  "typeValidation": "strict",
+                  "version": 2
+                },
+                "conditions": [
+                  {
+                    "id": "cbc7f913-e943-4de1-bbf2-d3e522109d1b",
+                    "leftValue": "={{ $json.input }}",
+                    "rightValue": "image",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notContains"
+                    }
+                  }
+                ],
+                "combinator": "and"
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.switch",
+      "typeVersion": 3.2,
+      "position": [
+        1568,
+        912
+      ],
+      "id": "08f889aa-3fcd-44b6-b46e-1d5f5c3b08cc",
+      "name": "Switch1"
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "models/gemini-2.5-flash",
+          "mode": "list",
+          "cachedResultName": "models/gemini-2.5-flash"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "={{ $json.input }}"
+            }
+          ]
+        },
+        "options": {
+          "systemMessage": "=High Quality Image Promt Generateor for Google Nano Banana \nwrite a based short pormt wich I can give to Ai only single best output inproper format\n\nremove this - **Prompt:**\\n\\n\ndirect give output"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "typeVersion": 1,
+      "position": [
+        720,
+        1904
+      ],
+      "id": "7a590df1-324e-44e7-bd1f-7245175e0796",
+      "name": "Image Promt",
+      "credentials": {
+        "googlePalmApi": {
+          "id": "KDGQP2VnNEEeOqCv",
+          "name": "Gemini Model"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={\n  \"model\": \"google/gemini-2.5-flash-image-preview\",\n  \"messages\": [\n    {\n      \"role\": \"user\",\n      \"content\": [\n        {\n          \"type\": \"text\",\n          \"text\": \"{{ $('Image Promt').item.json.content.parts[0].text }}\"\n        }\n      ]\n    }\n  ]\n}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        1504,
+        1904
+      ],
+      "id": "9bdb8cdc-19de-4054-80e5-b3c5234589ca",
+      "name": "Google Banana",
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "T0ufqbedl8vXnJ4d",
+          "name": "Open Router"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "23c0d1fa-897f-4a1a-b201-8103e473adea",
+              "name": "data",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url }}",
+              "type": "string"
+            },
+            {
+              "id": "bcf338f7-575f-492b-ab68-535263d65a17",
+              "name": "base",
+              "value": "={{ $json.choices[0].message.images[0].image_url.url.split(\",\")[1] }}",
+              "type": "string"
+            },
+            {
+              "id": "6fff18a2-acc9-42b9-bf7c-6662ddb18ab3",
+              "name": "mime",
+              "value": "image/png",
+              "type": "string"
+            },
+            {
+              "id": "cb656296-3407-40cd-9271-88ee33710e12",
+              "name": "fileName",
+              "value": ".png",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        1696,
+        1904
+      ],
+      "id": "c0c62a08-c12e-435a-a973-1b44637be042",
+      "name": "Edit Fields"
+    },
+    {
+      "parameters": {
+        "operation": "toBinary",
+        "sourceProperty": "base",
+        "options": {
+          "fileName": "={{ $json.fileName }}",
+          "mimeType": "={{ $json.mime }}"
+        }
+      },
+      "type": "n8n-nodes-base.convertToFile",
+      "typeVersion": 1.1,
+      "position": [
+        1856,
+        1904
+      ],
+      "id": "edbeb7c7-88f3-47ba-90b1-aba2bc719779",
+      "name": "Image"
+    },
+    {
+      "parameters": {
+        "operation": "sendPhoto",
+        "chatId": "={{ $('Telegram Trigger').item.json.message.chat.id }}",
+        "binaryData": true,
+        "additionalFields": {}
+      },
+      "type": "n8n-nodes-base.telegram",
+      "typeVersion": 1.2,
+      "position": [
+        2096,
+        1904
+      ],
+      "id": "d4820c00-cd44-4cfb-87cc-992b4d066225",
+      "name": "Response1",
+      "webhookId": "4d174459-d5cc-4297-a449-369d3f10ef23",
+      "alwaysOutputData": false,
+      "executeOnce": false,
+      "notesInFlow": false,
+      "credentials": {
+        "telegramApi": {
+          "id": "YEsfGVduxXH2qtuH",
+          "name": "Agent Dhruv"
+        }
+      },
+      "onError": "continueRegularOutput"
+    },
+    {
+      "parameters": {
+        "content": "## Generate Image",
+        "width": 1888,
+        "color": 7
+      },
+      "type": "n8n-nodes-base.stickyNote",
+      "typeVersion": 1,
+      "position": [
+        400,
+        1888
+      ],
+      "id": "45041bdb-20dd-430a-8e6d-cf2b13092e7d",
+      "name": "Sticky Note1"
+    },
+    {
+      "parameters": {
+        "name": "={{ $('File Name Creator for Drive').item.json.message.content }}",
+        "driveId": {
+          "__rl": true,
+          "value": "My Drive",
+          "mode": "list",
+          "cachedResultName": "My Drive",
+          "cachedResultUrl": "https://drive.google.com/drive/my-drive"
+        },
+        "folderId": {
+          "__rl": true,
+          "value": "1zAdsNiZI6I8AyzVGnj8p1HsUO418Eh9i",
+          "mode": "list",
+          "cachedResultName": "Image Generator 1",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1zAdsNiZI6I8AyzVGnj8p1HsUO418Eh9i"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleDrive",
+      "typeVersion": 3,
+      "position": [
+        2400,
+        1760
+      ],
+      "id": "25bb4bea-adad-4c19-a803-eabb92f4d317",
+      "name": "Upload file1",
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "kdUjuGohYCwgZCMq",
+          "name": "Ai with Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "value": "gpt-5-nano",
+          "mode": "list",
+          "cachedResultName": "GPT-5-NANO"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Summarize this in short as a google drive file name {{ $json.content.parts[0].text }}"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "typeVersion": 1.8,
+      "position": [
+        1104,
+        1904
+      ],
+      "id": "8137bfd9-6459-42ae-95e7-8f92305360cd",
+      "name": "File Name Creator for Drive",
+      "credentials": {
+        "openAiApi": {
+          "id": "lpu80hefGGrT0ZQQ",
+          "name": "OpenAi account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "operation": "append",
+        "documentId": {
+          "__rl": true,
+          "value": "1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4",
+          "mode": "list",
+          "cachedResultName": "LInkedin Ai Autmation",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit?usp=drivesdk"
+        },
+        "sheetName": {
+          "__rl": true,
+          "value": 496980008,
+          "mode": "list",
+          "cachedResultName": "Image Collection 1",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YZk12lNR7ZpjtJ6pOB2ugIgVIyF15-oAGPhuzCg2KE4/edit#gid=496980008"
+        },
+        "columns": {
+          "mappingMode": "defineBelow",
+          "value": {
+            "Image Promt": "={{ $('Image Promt').item.json.content.parts[0].text }}",
+            "Image Link": "={{ $json.webContentLink }}",
+            "File Name": "={{ $('File Name Creator for Drive').item.json.message.content }}"
+          },
+          "matchingColumns": [
+            "Topic"
+          ],
+          "schema": [
+            {
+              "id": "Image Promt",
+              "displayName": "Image Promt",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "File Name",
+              "displayName": "File Name",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            },
+            {
+              "id": "Image Link",
+              "displayName": "Image Link",
+              "required": false,
+              "defaultMatch": false,
+              "display": true,
+              "type": "string",
+              "canBeUsedToMatch": true,
+              "removed": false
+            }
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.googleSheets",
+      "typeVersion": 4.7,
+      "position": [
+        2720,
+        1904
+      ],
+      "id": "8f773e19-4feb-4973-9459-d9a156cacc07",
+      "name": "Append row in sheet1",
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "XdPsEAeVWvgXm2c8",
+          "name": "Ai With Dhruv"
+        }
+      }
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.noOp",
+      "typeVersion": 1,
+      "position": [
+        2304,
+        1904
+      ],
+      "id": "9a1f93f2-3b3a-4ea1-a5dd-1108adcf29b9",
+      "name": "No Operation, do nothing2"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Telegram Trigger": {
+      "main": [
+        [
+          {
+            "node": "Switch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set 'Text'": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Voice File": {
+      "main": [
+        [
+          {
+            "node": "Transcribe Audio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Transcribe Audio": {
+      "main": [
+        [
+          {
+            "node": "Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch": {
+      "main": [
+        [
+          {
+            "node": "Download Voice File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set 'Text'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Clean Up",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Reply": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Labels": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Emails": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Unread": {
+      "ai_tool": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event with Attendee": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Events": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Event": {
+      "ai_tool": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendar Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Up": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simple Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Input": {
+      "main": [
+        [
+          {
+            "node": "Switch1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-5 Nano1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Email Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-5 Nano2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Calendar Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stock Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-5 Nano3": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Stock Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Growth Architect": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Stock Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Growth Architect",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.5 Flash": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Growth Architect",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.5 Flash1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Promt Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Promt Agent": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "2.5 Flash2": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch1": {
+      "main": [
+        [
+          {
+            "node": "Image Promt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image Promt": {
+      "main": [
+        [
+          {
+            "node": "File Name Creator for Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Banana": {
+      "main": [
+        [
+          {
+            "node": "Edit Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit Fields": {
+      "main": [
+        [
+          {
+            "node": "Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image": {
+      "main": [
+        [
+          {
+            "node": "Response1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upload file1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload file1": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Response1": {
+      "main": [
+        [
+          {
+            "node": "No Operation, do nothing2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Name Creator for Drive": {
+      "main": [
+        [
+          {
+            "node": "Google Banana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": true,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e906cf39-71e4-4ad4-8eb9-fc16ee380bf8",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "efe1dfb464309204d7061d14c50a47d27ff5ac930cfe91f009223911522113f8"
+  },
+  "id": "I3veh7tGVhYv53iP",
+  "tags": []
+}

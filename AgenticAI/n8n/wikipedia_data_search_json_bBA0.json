@@ -1,0 +1,209 @@
+{
+  "name": "wikipedia data search",
+  "nodes": [
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.manualTrigger",
+      "typeVersion": 1,
+      "position": [
+        -672,
+        -128
+      ],
+      "id": "1cfcbfad-006a-4956-910c-b2d2accdea63",
+      "name": "When clicking ‘Execute workflow’"
+    },
+    {
+      "parameters": {
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1f26abad-2737-4118-872a-5e432606be82",
+              "name": "chatInput",
+              "value": "={{ $json.chatInput }}",
+              "type": "string"
+            }
+          ]
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.set",
+      "typeVersion": 3.4,
+      "position": [
+        -336,
+        -80
+      ],
+      "id": "efeecc85-d04c-4850-bdf7-6f4d96d6a89c",
+      "name": "questions"
+    },
+    {
+      "parameters": {
+        "promptType": "define",
+        "text": "={{ $json.chatInput }}",
+        "hasOutputParser": true,
+        "options": {
+          "systemMessage": "=You are a concise factual assistant. \nUse tools only if you're unsure. \nAnswer in ≤120 words with 2 bullet points at the end.\nInput will be:{{ $json.chatInput }}\n"
+        }
+      },
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "typeVersion": 2.2,
+      "position": [
+        -128,
+        -80
+      ],
+      "id": "d5c16dbf-f948-4b93-bf57-ef43863600d1",
+      "name": "AI Agent"
+    },
+    {
+      "parameters": {},
+      "type": "@n8n/n8n-nodes-langchain.toolWikipedia",
+      "typeVersion": 1,
+      "position": [
+        -16,
+        192
+      ],
+      "id": "b6e335dc-01e0-459a-a426-1e07779f9164",
+      "name": "Wikipedia"
+    },
+    {
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "typeVersion": 1.2,
+      "position": [
+        -272,
+        128
+      ],
+      "id": "204a78c4-5d49-480d-bb62-876bbab92d64",
+      "name": "OpenAI Chat Model",
+      "credentials": {
+        "openAiApi": {
+          "id": "0XAQwaPkIDUVw2E7",
+          "name": "OpenAi account 3"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "sendTo": "sskumar9876@gmail.com",
+        "subject": "wiki search",
+        "message": "={{ $json.output }}",
+        "options": {}
+      },
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        224,
+        -80
+      ],
+      "id": "cab7460b-8778-4dbf-a5da-0c4c9a455e87",
+      "name": "Send a message",
+      "webhookId": "b2fd65ef-97ca-45de-b96a-c21ee8b7cd21",
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "s4REdx26m4kz97CF",
+          "name": "Gmail account"
+        }
+      }
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "typeVersion": 1.3,
+      "position": [
+        -672,
+        32
+      ],
+      "id": "c7ebfc08-96a8-4ad4-adc3-171c0f1f12fd",
+      "name": "When chat message received",
+      "webhookId": "96d64348-76f1-4395-8f07-47490d688032"
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "questions": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wikipedia": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When chat message received": {
+      "main": [
+        [
+          {
+            "node": "questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "bdacdc24-ead3-4e94-83e4-77ec4b6df950",
+  "meta": {
+    "templateCredsSetupCompleted": true,
+    "instanceId": "5803b12455e37b4e61e6adfd91f47bf7633ccace7711bf26397316ff159df6b5"
+  },
+  "id": "FwNbepiy2pzyKsLv",
+  "tags": []
+}
