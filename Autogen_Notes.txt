@@ -1,0 +1,3 @@
+pip install autogenstudio
+
+To Open the Autogen UI: autogenstudio ui --port 8081
