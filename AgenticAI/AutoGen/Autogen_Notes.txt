@@ -1,0 +1,43 @@
+pip install autogenstudio
+
+To Open the Autogen UI: autogenstudio ui --port 8081
+
+
+
+Telegram
+https://my.telegram.org/apps
+
+
+#pip install telethon
+
+
+from telethon import TelegramClient
+
+# Your credentials from https://my.telegram.org/apps
+api_id = 20250063
+api_hash = '9c47ded49531aaa11a3fb6be0e0b1236'
+
+# Create the client (it will create a 'session' file the first time)
+client = TelegramClient('sudhreport123_session', api_id, api_hash)
+
+async def main():
+    # Send a message to your own phone number
+    await client.send_message('+919176072251', 'Hello Sudhanshu! 🚀 This is an automated message sent using Python + Telethon.')
+
+    # Or send to someone by username:
+    # await client.send_message('username_here', 'Hey there!')
+
+    print("✅ Message sent successfully!")
+
+# Start the client and run the async function
+with client:
+    client.loop.run_until_complete(main())
+
+
+
+
+
+https://drive.google.com/file/d/1WfxZZgNQm6gllhiAs07hSOggtvd6Tbcf/view?usp=sharing
+
+python scheduler.py now
+python scheduler.py
