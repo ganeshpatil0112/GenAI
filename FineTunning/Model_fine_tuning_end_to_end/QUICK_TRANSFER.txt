@@ -1,0 +1,138 @@
+╔════════════════════════════════════════════════════════════════╗
+║          QUICK TRANSFER GUIDE - Windows to H100 GPU            ║
+╚════════════════════════════════════════════════════════════════╝
+
+📦 FILES TO TRANSFER:
+   ✅ models/                    (~2-5 GB - Your trained models)
+   ✅ api_server.py              (API server code)
+   ✅ Dockerfile                 (Docker config)
+   ✅ docker-compose.yml         (Deployment config)
+   ✅ requirements.txt           (Dependencies)
+   ✅ requirements_api.txt       (API dependencies)
+
+🚀 OPTION 1: Automated Script (EASIEST)
+   
+   1. Edit transfer_to_h100.ps1 (Lines 5-7):
+      $SERVER_IP = "192.168.1.100"     # Your H100 IP
+      $SERVER_USER = "username"         # Your username
+   
+   2. Run in PowerShell:
+      cd D:\finetuningfinal
+      .\transfer_to_h100.ps1
+   
+   3. Follow on-screen instructions
+   
+   ✓ Script automatically:
+     - Compresses files
+     - Transfers to server
+     - Shows next steps
+
+🖥️ OPTION 2: WinSCP (GUI - RECOMMENDED)
+   
+   1. Download WinSCP: https://winscp.net
+   
+   2. Connect to H100 server:
+      Host: Your server IP
+      User: Your username
+      Port: 22
+   
+   3. Drag & drop these folders/files:
+      models/ → Right side
+      api_server.py → Right side
+      Dockerfile → Right side
+      docker-compose.yml → Right side
+      requirements*.txt → Right side
+   
+   4. Wait for transfer to complete
+
+💻 OPTION 3: Manual Command Line
+   
+   PowerShell:
+   cd D:\finetuningfinal
+   
+   # Compress files
+   Compress-Archive -Path models,api_server.py,Dockerfile,docker-compose.yml,requirements.txt,requirements_api.txt -DestinationPath h100.zip
+   
+   # Transfer
+   scp h100.zip username@SERVER_IP:~/
+   
+   On H100 Server:
+   ssh username@SERVER_IP
+   unzip ~/h100.zip -d ~/finetuningfinal
+   cd ~/finetuningfinal
+   docker-compose up -d
+
+⏱️ TRANSFER TIME:
+   Fast Network (1 Gbps):  2-3 minutes
+   Normal (100 Mbps):      5-10 minutes
+   Slow (10 Mbps):         30-60 minutes
+
+🔧 AFTER TRANSFER (On H100 Server):
+   
+   1. SSH to server:
+      ssh username@SERVER_IP
+   
+   2. Navigate to directory:
+      cd ~/finetuningfinal
+   
+   3. Deploy with Docker:
+      docker-compose up -d
+   
+   4. Check logs:
+      docker-compose logs -f
+   
+   5. Verify GPU:
+      nvidia-smi
+   
+   6. Test API:
+      curl http://localhost:8000/health
+
+✅ VERIFY TRANSFER:
+   
+   On H100 server, check:
+   ls ~/finetuningfinal/models/
+   
+   Should see:
+   - hr_full_finetuned/
+   - sales_peft_finetuned/
+   - healthcare_lora_finetuned/
+   - marketing_qlora_finetuned/
+
+🌐 ACCESS API:
+   From your Windows machine:
+   http://SERVER_IP:8000/docs
+
+📚 DETAILED GUIDE:
+   See: WINDOWS_TO_H100_GUIDE.md
+
+🐛 TROUBLESHOOTING:
+   
+   Problem: SSH connection refused
+   Solution: Check SSH service on server
+            sudo systemctl start ssh
+   
+   Problem: Permission denied
+   Solution: Use password authentication
+            ssh -o PreferredAuthentications=password user@ip
+   
+   Problem: Transfer too slow
+   Solution: Use compression or transfer off-peak hours
+
+💡 QUICK TIPS:
+   
+   1. Test SSH first: ssh username@SERVER_IP
+   2. Compress large files before transfer
+   3. Use SSH keys for faster authentication
+   4. Keep archive file as backup
+   5. Verify file sizes after transfer
+
+══════════════════════════════════════════════════════════════════
+
+CHOOSE YOUR METHOD:
+
+Option 1: .\transfer_to_h100.ps1        (Automated)
+Option 2: WinSCP GUI                    (Easiest)
+Option 3: Manual SCP                    (Advanced)
+
+══════════════════════════════════════════════════════════════════
+

@@ -1,0 +1,148 @@
+Where not to use model fine tuning?  
+1. In case of. Where data is changing continuously. In that case we generally use The RAG.
+
+
+Types of Fine Tunning -> Data Preparation -> Hardware -> Prep code and infra -> Test -> Prod.
+
+Types of Fine Tunning:
+1. Full Fine Tunning - Wahtewhere model(trnsformer architechure) we have, we are going to update the entire waight of model from the data.
+2. PEFT(Parameter efficient Fine Tunning) - we try to update the some of the waight. add sone paralel layer on model.
+	a. LoRA(Low Rank Adaptation) - Traing pre trained LLM model
+	b. QLoRA(Quantized Low Rank Adaptation) - Quantized your data in lower bits so your computation will be faster in processor(processor is 64 or 32 bit so make data train with the lower bit data 8, 16 bit) - data lose happen beacuse of bit reduction but computation will be faster. will able to host any device like mobile. TPU and edge device.
+	
+3. DPO 
+
+
+
+
+
+
+🔧 Steps to Create a Fine-Tuned Model
+1. Define the Objective
+
+What task are you solving? (e.g., sentiment analysis, image classification, chatbot)
+What kind of model do you need? (e.g., transformer, CNN, RNN)
+
+2. Choose a Pre-trained Model
+
+Select a base model that closely aligns with your task.
+
+For NLP: BERT, GPT, RoBERTa, T5
+For Vision: ResNet, EfficientNet, ViT
+For Audio: Wav2Vec, Whisper
+
+
+
+3. Prepare Your Dataset
+
+Collect and clean your data.
+Format it according to the model’s input requirements.
+
+For NLP: Tokenized text
+For Vision: Normalized images
+For Audio: Spectrograms or waveform data
+
+
+
+4. Set Up the Environment
+
+Use frameworks like:
+
+Hugging Face Transformers (for NLP)
+PyTorch or TensorFlow (for general ML)
+Keras (for quick prototyping)
+
+
+
+5. Tokenization / Preprocessing
+
+Use the tokenizer or preprocessing pipeline associated with the base model.
+Ensure consistency with the original training setup.
+
+6. Fine-Tuning
+
+Load the pre-trained model.
+Replace or append task-specific layers (e.g., classification head).
+Train on your dataset:
+
+Use a smaller learning rate.
+Apply techniques like early stopping, gradient clipping, and regularization.
+
+
+
+7. Evaluation
+
+Use validation/test sets to evaluate performance.
+Metrics depend on the task (e.g., accuracy, F1-score, BLEU, etc.)
+
+8. Save and Deploy
+
+Save the fine-tuned model.
+Export it for inference (e.g., ONNX, TorchScript, or Hugging Face transformers format).
+Deploy via API, web app, or embedded system.
+
+9. Monitor and Update
+
+Track performance in production.
+Re-train periodically with new data if needed.
+
+
+
+
+
+
+🧠 Types of Fine-Tuning
+1. Full Fine-Tuning
+
+What it is: All layers of the pre-trained model are updated during training.
+Use case: When you have a large, high-quality dataset and sufficient compute.
+Pros: Maximum flexibility and performance.
+Cons: Computationally expensive and risk of overfitting.
+
+
+2. Feature Extraction (Partial Fine-Tuning)
+
+What it is: Freeze most of the pre-trained layers and only train the final few layers (e.g., classification head).
+Use case: When data is limited or compute is constrained.
+Pros: Faster training, less risk of overfitting.
+Cons: May not adapt well to very different tasks.
+
+
+3. Layer-wise Fine-Tuning
+
+What it is: Gradually unfreeze layers starting from the top (output) to the bottom (input).
+Use case: When transitioning from general to specific tasks.
+Pros: Balanced adaptation and stability.
+Cons: Requires careful scheduling and tuning.
+
+
+4. Adapter-Based Fine-Tuning
+
+What it is: Insert small trainable modules (adapters) between layers of a frozen model.
+Use case: NLP tasks using transformer models (e.g., BERT, GPT).
+Pros: Efficient, modular, and reusable.
+Cons: Slightly lower performance than full fine-tuning in some cases.
+
+
+5. Prompt Tuning / Prefix Tuning
+
+What it is: Learn a small set of parameters (prompts or prefixes) that guide the frozen model.
+Use case: Large language models (LLMs) like GPT, T5.
+Pros: Very lightweight and fast.
+Cons: Limited flexibility for complex tasks.
+
+
+6. Low-Rank Adaptation (LoRA)
+
+What it is: Fine-tune using low-rank matrices added to the model weights.
+Use case: Efficient fine-tuning of large models.
+Pros: Memory-efficient and scalable.
+Cons: Requires integration with specific libraries (e.g., Hugging Face PEFT).
+
+
+7. Domain Adaptation
+
+What it is: Fine-tune a model on data from a specific domain (e.g., medical, legal).
+Use case: When the target domain differs from the pre-training domain.
+Pros: Improves performance on domain-specific tasks.
+Cons: May require domain-specific data and expertise.
