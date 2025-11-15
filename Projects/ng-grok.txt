@@ -1,0 +1,16 @@
+ng-grok with the email-Id: patilganesh0318@gmail.com
+
+Multi-factor Authentication
+Use an authenticator app like 1Password, Google Authenticator, or Microsoft Authenticator to generate one-time passwords that are used as a second factor when you sign in to ngrok.
+
+Enable or disable MFA at any time in the User Settings page.
+
+Scan the QR code using your authenticator app
+
+Or enter the code below into the authenticator app
+
+EHFKONH2LWWTSMCDDERJ5WQJTA4THPW6
+
+ng-grok with the email-Id: patilganesh0318@gmail.com
+ngrok config add-authtoken 33dqOATBC6BRbA7d5lgFSjfoKsv_4ii1QroUVTyMJgwSgZQKL
+ngrok http 11434--host-header="localhost:11434"
