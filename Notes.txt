@@ -1,6 +1,10 @@
 resume_ats_agent: 21st Sept lecture: Crew AI Resume ATS agent.
 https://euron-prod-lecture-resources.s3.ap-south-1.amazonaws.com/resume_ats_agent_zip_uoKo.zip
 
+
+AI Mock interview Project:
+https://euron.one/learn/2736f258-8b90-4af8-8e9f-7bb213b52b5c?tab=Overview&activeLectureId=11ec8fab-436b-486c-a933-4c5f200ac454
+
 https://codeload.github.com/sudhanshukumartech/Code_Commanders/zip/refs/heads/main
 
 https://raw.githubusercontent.com/sudhanshukumartech/Code_Commanders/refs/heads/main/computer%20vision/Automatic-number-plate-recognition-ANPR-with-Yolov9-and-EasyOCR.zip
