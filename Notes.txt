@@ -8,3 +8,74 @@ https://euron.one/learn/2736f258-8b90-4af8-8e9f-7bb213b52b5c?tab=Overview&active
 https://codeload.github.com/sudhanshukumartech/Code_Commanders/zip/refs/heads/main
 
 https://raw.githubusercontent.com/sudhanshukumartech/Code_Commanders/refs/heads/main/computer%20vision/Automatic-number-plate-recognition-ANPR-with-Yolov9-and-EasyOCR.zip
+
+
+
+LLM Github Repo:
+https://github.com/Shubhamsaboo/awesome-llm-apps
+
+
+commands run inside new EC2 machine.
+ubuntu@ip-172-31-6-167:~/fastapi-app$ history
+    1  cls
+    2  clear
+    3  sudo apt update && sudo apt upgrade -y
+    4  clear
+    5  sudo apt install -y python3-pip python3-venv
+    6  mkdir fastapi-app
+    7  ls -l
+    8  cd fastapi-app/
+    9  clear
+   10  pwd
+   11  python3 -m venv venv
+   12  ls -l
+   13  source venv/bin/activate
+   14  history
+
+
+
+
+sudo nano /etc/systemd/system/fastapi.service
+[Unit]
+Description=FastAPI Uvicorn App
+After=network.target
+
+[Service]
+User=ubuntu
+WorkingDirectory=/home/ubuntu/fastapi-app
+Environment="PATH=/home/ubuntu/fastapi-app/venv/bin"
+ExecStart=/home/ubuntu/fastapi-app/venv/bin/uvicorn main:app --host 127.0.0.1 --port 8000
+Restart=always
+
+[Install]
+WantedBy=multi-user.target
+
+
+sudo systemctl daemon-reload
+sudo systemctl enable fastapi
+sudo systemctl start fastapi
+sudo systemctl status fastapi
+sudo apt install -y nginx
+
+
+sudo nano /etc/nginx/sites-available/fastapi
+server {
+    listen 80;
+    server_name _;
+
+    location / {
+        proxy_pass http://127.0.0.1:8000;
+        proxy_set_header Host $host;
+        proxy_set_header X-Real-IP $remote_addr;
+        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+        proxy_set_header X-Forwarded-Proto $scheme;
+    }
+}
+
+
+sudo ln -s /etc/nginx/sites-available/fastapi /etc/nginx/sites-enabled/
+
+sudo rm /etc/nginx/sites-enabled/default
+
+sudo nginx -t
+sudo systemctl restart nginx
