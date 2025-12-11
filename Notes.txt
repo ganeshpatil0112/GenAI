@@ -1,3 +1,5 @@
+Deepgram | 11labs| Whisper (for local model) for speach agents.
+
 resume_ats_agent: 21st Sept lecture: Crew AI Resume ATS agent.
 https://euron-prod-lecture-resources.s3.ap-south-1.amazonaws.com/resume_ats_agent_zip_uoKo.zip
 
